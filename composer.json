@@ -1,5 +1,7 @@
 {
   "require": {
-    "guzzlehttp/guzzle": "^7.0"
+    "guzzlehttp/guzzle": "^7.0",
+    "ext-readline": "*",
+    "vlucas/phpdotenv": "^5.6"
   }
 }
