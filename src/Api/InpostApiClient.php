@@ -57,9 +57,15 @@ readonly class InpostApiClient
         return $organisations;
     }
 
+    # Wysyła do API zlecenie odbioru przesyłki
     public function dispatchOrder(int $shipmentId, int $organisationId): void
     {
-        $this->makeRequest('POST', sprintf(self::DISPATCH_ORDERS_URL, $organisationId));
+        $data = json_decode(file_get_contents('SampleData/dispatch_order.json'), true);
+        $data['shipments'] = [$shipmentId];
+
+        var_dump($data);
+
+        $this->makeRequest('POST', sprintf(self::DISPATCH_ORDERS_URL, $organisationId), ['json' => $data]);
     }
 
     private function makeRequest(string $method, string $url, array $options = []): ResponseInterface

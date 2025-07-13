@@ -1,0 +1,11 @@
+{
+  "name": "Przykładowa nazwa DispatchPoint",
+  "phone": "505404202",
+  "address": {
+    "street": "Malborska",
+    "building_number": "130",
+    "city": "Krakow",
+    "post_code": "31-209",
+    "country_code": "PL"
+  }
+}

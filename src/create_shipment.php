@@ -57,10 +57,10 @@ function promptUserForOrganization(array $organisations): int
             printLine($e->getMessage());
             continue;
         }
-        
+
         # Zapisanie id w celu późniejszej walidacji
         $organisationIds[] = $organisation['id'];
-        
+
         # Output dla użytkownika żeby wiedział jakie są dostępne opcje
         printLine($organisation['id'] . ' ' . $organisation['name']);
     }
@@ -75,10 +75,8 @@ function promptUserForOrganization(array $organisations): int
     } while (false === in_array($choice, $organisationIds));
 
 
-    return (int) $choice;
+    return (int)$choice;
 }
-
-
 
 
 # Funkcja pomocnicza, pomaga uniknąć wypisywania PHP_EOL w wielu miejscach
