@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
+use UnexpectedValueException;
 
 readonly class InpostApiClient
 {
@@ -63,8 +64,6 @@ readonly class InpostApiClient
         $data = json_decode(file_get_contents('SampleData/dispatch_order.json'), true);
         $data['shipments'] = [$shipmentId];
 
-        var_dump($data);
-
         $this->makeRequest('POST', sprintf(self::DISPATCH_ORDERS_URL, $organisationId), ['json' => $data]);
     }
 
@@ -80,6 +79,8 @@ readonly class InpostApiClient
             exit();
         }
 
+        $this->logResponse($response);
+
         return $response;
     }
 
@@ -90,5 +91,12 @@ readonly class InpostApiClient
         } else {
             printLine('Błąd API: pusta odpowiedź');
         }
+    }
+
+    private function logResponse(ResponseInterface $response): void
+    {
+        file_put_contents('log.txt', $response->getBody()->getContents() . '\n', FILE_APPEND);
+        # Przywraca wskaźnik strumienia na początek, aby umożliwić ponowny odczyt danych
+        $response->getBody()->rewind();
     }
 }
