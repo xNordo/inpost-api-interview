@@ -14,7 +14,7 @@ Skrypt PHP do tworzenia przesyłek za pomocą API InPost.
 composer install
 ```
 
-2. Skonfiguruj plik **`.env`** z przynajmniej jednym tokenem API:
+2. Skonfiguruj plik **`src/.env`** z przynajmniej jednym tokenem API:
 
 ```
 API_TOKEN=your_production_api_token
