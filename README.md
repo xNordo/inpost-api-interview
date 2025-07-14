@@ -2,18 +2,17 @@
 
 Skrypt PHP do tworzenia przesyłek za pomocą API InPost.
 
-````markdown
 ## Wymagania
-
+````markdown
 - PHP 8.3
 - Composer
-
+````
 ## Instalacja
 
 1. Zainstaluj zależności:
-   ```bash
-   composer install
-````
+```bash
+composer install
+```
 
 2. Skonfiguruj plik **`.env`** z przynajmniej jednym tokenem API:
 
