@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use InpostApiInterview\Api\InpostApiClient;
 use Dotenv\Dotenv;
+use InpostApiInterview\ConsoleHelper;
+use InpostApiInterview\InpostApiClient;
 
 
 $options = getopt('', ['prod']);
@@ -23,64 +24,27 @@ if (isset($options['prod'])) {
 
 # Walidacja danych z .env
 if (empty($apiUrl) || empty($apiToken)) {
-    printLine('Błąd: brakujące dane w pliku .env');
+    ConsoleHelper::printMessage('Błąd: brakujące dane w pliku .env');
     exit('Zatrzymano skrypt' . PHP_EOL);
 }
 
-$apiClient = new InpostApiClient($apiUrl, $apiToken);
 
-# Wybranie z jakiej organizacji ma zostać nadana przesyłka, w API może byc kilka organizacji powiązanych z jednym tokenem
-$organisations = $apiClient->fetchOrganisations();
-$organisationId = promptUserForOrganization($organisations);
+try {
+    $apiClient = new InpostApiClient($apiUrl, $apiToken);
 
-# Stworzenie przesyłki
-$shipmentId = $apiClient->createShipment($organisationId);
+    # Wybranie z jakiej organizacji ma zostać nadana przesyłka, w API może byc kilka organizacji powiązanych z jednym tokenem
+    $organisations = $apiClient->fetchOrganisations();
+    $organisationId = ConsoleHelper::promptUserForOrganization($organisations);
 
-# Zlecenie odbioru
-$apiClient->dispatchOrder($shipmentId, $organisationId);
+    # Stworzenie przesyłki
+    $shipmentId = $apiClient->createShipment($organisationId);
 
-function promptUserForOrganization(array $organisations): int
-{
-    printLine('Lista organizacji powiązanych z podanym tokenem:');
-    $organisationIds = [];
+    # Odczekanie na zmianę statusu przesyłki w API, bez statusu confirmed nie można zlecić odbioru
+    $apiClient->waitForShipmentConfirm($shipmentId, $organisationId);
 
-    foreach ($organisations as $organisation) {
-        # Sprawdzenie zgodności danych organizacji z API, w razie błędu pomijamy ten rekord
-        try {
-            if (false === isset($organisation['id'])) {
-                throw new UnexpectedValueException('Błąd: Zła struktura odpowiedzi z API, brak ID organizacji.');
-            }
-            if (false === isset($organisation['name'])) {
-                throw new UnexpectedValueException('Błąd: Zła struktura odpowiedzi z API, brak nazwy organizacji.');
-            }
-        } catch (UnexpectedValueException $e) {
-            printLine($e->getMessage());
-            continue;
-        }
-
-        # Zapisanie id w celu późniejszej walidacji
-        $organisationIds[] = $organisation['id'];
-
-        # Output dla użytkownika żeby wiedział jakie są dostępne opcje
-        printLine($organisation['id'] . ' ' . $organisation['name']);
-    }
-
-    # Odpytanie użytkownika o ID organizacji, w razie błędnego inputu wyświelany jest błąd i odpytanie
-    do {
-        $choice = readline('Podaj ID organizacji z której ma być nadana paczka: ');
-
-        if (false === in_array($choice, $organisationIds)) {
-            printLine('Brak organizacji z podanym ID.');
-        }
-    } while (false === in_array($choice, $organisationIds));
-
-
-    return (int)$choice;
-}
-
-
-# Funkcja pomocnicza, pomaga uniknąć wypisywania PHP_EOL w wielu miejscach
-function printLine($message): void
-{
-    echo $message . PHP_EOL;
+    # Zlecenie odbioru
+    $apiClient->dispatchOrder($shipmentId, $organisationId);
+} catch (Throwable $e) {
+    ConsoleHelper::printMessage('Wystąpił nieoczekiwany błąd: ' . $e->getMessage());
+    exit();
 }
