@@ -2,7 +2,8 @@
   "require": {
     "guzzlehttp/guzzle": "^7.0",
     "ext-readline": "*",
-    "vlucas/phpdotenv": "^5.6"
+    "vlucas/phpdotenv": "^5.6",
+    "monolog/monolog": "^3.9"
   },
   "autoload": {
     "psr-4": {
